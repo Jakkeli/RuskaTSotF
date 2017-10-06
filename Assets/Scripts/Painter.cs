@@ -70,6 +70,8 @@ namespace DaydreamElements.ClickMenu {
 
         public GestureRecognizer gestRecog;
 
+        public string eiVoiToimii = "";
+
     //public void UseInitialMaterial() {
     //  reticle.sharedMaterial = initialReticleMaterial;
     //}
@@ -226,10 +228,17 @@ namespace DaydreamElements.ClickMenu {
         curStroke = null;
         isPainting = false;
             Point[] newPoints = pointsList.ToArray();
+            MahdotonRoska(newPoints);
             gestRecog.CheckCandidateGesture(newPoints);
             pointsList.Clear();
             pointsArrayId++;
     }
+
+        void MahdotonRoska(Point[] pojot) {
+            for (int i = 0; i < pojot.Length - 1; i++) {
+                eiVoiToimii = eiVoiToimii + "new Point(" + pojot[i].X + ", " + pojot[i].Y + ", " + pojot[i].StrokeID + "), ";
+            }
+        }
 
     private void ContinueStroke() {
       if (!IsEraser && curStroke != null) {
