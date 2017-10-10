@@ -55,8 +55,9 @@ public class GestureRecognizer : MonoBehaviour {
         }
         newPoints = points;
         candidate = new Gesture(newPoints);
+        painter.VisualStuff(candidate);
         gestureClass = PointCloudRecognizer.Classify(candidate, gestureSet, minMatchValue);
-        print(gestureClass);
+        //print(gestureClass);
         GotGestureClass(gestureClass);
         switch (gestureClass) {
             case "line_Horizontal": break;

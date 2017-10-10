@@ -33,7 +33,10 @@ namespace DaydreamElements.ClickMenu {
     public Material savedMat;
     }
 
-    private Vector3 lastPoint;
+    public Vector3 lastPoint;
+
+        public Vector3 lastPoint2;
+
     private List<Stroke> strokes;
     private List<Stroke> savedStrokes;
     private Stroke curStroke;
@@ -73,6 +76,12 @@ namespace DaydreamElements.ClickMenu {
         public string eiVoiToimii = "";
 
         public bool canPaint = false;
+
+        bool firstPoint;
+
+        public List<Vector3> ballPosList;
+
+        GestureVisualizer gv;
 
     public void CanPaint() {
             Clear();
@@ -126,6 +135,7 @@ namespace DaydreamElements.ClickMenu {
             }
             strokes.Clear();
             System.GC.Collect();
+            ballPosList.Clear();
         }
 
         //public void RemoveStroke(Stroke stroke) {
@@ -163,11 +173,13 @@ namespace DaydreamElements.ClickMenu {
     //}
 
     void Awake() {
+            gv = GetComponent<GestureVisualizer>();
       propertyBlock = new MaterialPropertyBlock();
       initialReticleMaterial = reticle.sharedMaterial;
       strokes = new List<Stroke>();
       paintMaterial = testMaterial;
       SetBrushPencil();
+            firstPoint = true;
       //menuRoot.OnItemSelected += OnItemSelected;
     }
 
@@ -219,40 +231,56 @@ namespace DaydreamElements.ClickMenu {
     }
 
     private void StartStroke() {
+            gv.ResetBallPositions();
       if (!IsEraser) {
         lastPoint = GetBrushPosition();
-                AddToPointsList(lastPoint);
+                //AddToPointsList(lastPoint);
+                AddNewPointToPointsList(Vector3.zero);
         CreateCurrentStroke();
         strokes.Add(curStroke);
         isPainting = true;
       }
     }
 
-        void AddToPointsList(Vector3 firstPoint) {                                            // get first Vector2 for gestureRecognizer
+        void AddToPointsList(Vector3 point) {                                            // get first Vector2 for gestureRecognizer VANHA / EI KÄYTÖSSÄ
             //newPoints = new Point[] { new Point(firstPoint.x, firstPoint.y, 0) };
-            pointsList.Add(new Point(firstPoint.x, firstPoint.y, pointsArrayId));
+            pointsList.Add(new Point(point.x, point.y, pointsArrayId));
+        }
+
+        public void VisualStuff(Gesture gesture) {
+            foreach (Point point in gesture.Points) {
+                ballPosList.Add(new Vector3(point.X, point.Y + 1, 1.5f));
+            }
+            gv.PlaceBalls(ballPosList);
+            ballPosList.Clear();
+            //ballPosList.Add(newPoint);
         }
 
     private void EndStroke() {
+            gv.PlaceBalls(ballPosList);
+            ballPosList.Clear();
             canPaint = false;
         curStroke = null;
         isPainting = false;
             Point[] newPoints = pointsList.ToArray();
             MahdotonRoska(newPoints);
             gestRecog.CheckCandidateGesture(newPoints);
+            print(newPoints.Length);
             pointsList.Clear();
             pointsArrayId++;
+            firstPoint = true;
     }
 
         void MahdotonRoska(Point[] pojot) {
-            for (int i = 0; i < pojot.Length - 1; i++) {
-                eiVoiToimii = eiVoiToimii + "new Point(" + pojot[i].X + ", " + pojot[i].Y + ", " + pojot[i].StrokeID + "), ";
-            }
+            //for (int i = 0; i < pojot.Length - 1; i++) {
+            //    eiVoiToimii = eiVoiToimii + "new Point(" + pojot[i].X + ", " + pojot[i].Y + ", " + pojot[i].StrokeID + "), ";
+            //}
         }
 
     private void ContinueStroke() {
       if (!IsEraser && curStroke != null) {
         AddNextVertex();
+                //AddNextPoint();
       }
     }
 
@@ -260,8 +288,8 @@ namespace DaydreamElements.ClickMenu {
             GvrLaserPointer pointer = GvrPointerInputModule.Pointer as GvrLaserPointer;
             if (pointer == null) {
                 print("pointer is null??!?!?");
-        return Vector3.zero;
-      }
+                return Vector3.zero;
+            }
             //print("tehdään?");
 
       Vector3 pointerEndPoint;
@@ -283,13 +311,44 @@ namespace DaydreamElements.ClickMenu {
 
         void AddNewPointToPointsList(Vector3 point) {
             // Check if enough movement has occurred
-            Vector3 newPoint = point;
-            Vector3 delta = newPoint - lastPoint;
+
+            Vector3 newPoint = point;          
+
+            GvrLaserPointer pointer = GvrPointerInputModule.Pointer as GvrLaserPointer;
+            if (pointer == null) {
+                print("pointer is null??!?!?");
+                newPoint = Vector3.zero;
+            }
+
+            Vector3 pointerEndPoint;
+            if (pointer.CurrentRaycastResult.gameObject != null) {
+                pointerEndPoint = pointer.CurrentRaycastResult.worldPosition;
+            } else {
+                pointerEndPoint = pointer.GetPointAlongPointer(pointer.defaultReticleDistance);
+            }
+
+            newPoint = pointerEndPoint;
+
+            if (firstPoint) {
+                lastPoint2 = newPoint;
+                pointsList.Add(new Point(newPoint.x, newPoint.y, pointsArrayId));
+                firstPoint = false;
+            }
+
+            Vector3 delta = newPoint - lastPoint2;
+            //print(delta);
             if (delta.magnitude < minVector2Discplacement) return;
-            //if (points.contains(newPoint)) return;
+            //if (pointsList.contains(newPoint)) return;
+            if (pointsList.Contains(new Point(newPoint.x, newPoint.y, pointsArrayId))) return;
             //print("tehdaan?");
-            pointsList.Add(new Point(point.x, point.y, pointsArrayId));                                                                // DO STUFF HERE
+            pointsList.Add(new Point(newPoint.x, newPoint.y, pointsArrayId));
+            lastPoint2 = newPoint; // DO STUFF HERE
+            
         }
+
+        //void AddNextPoint() {
+
+        //}
 
         private void AddNextVertex() {
       // Check if enough movement has occurred
