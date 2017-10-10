@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PDollarGestureRecognizer;
+using DaydreamElements.ClickMenu;
+using UnityEngine.UI;
 
 public class GestureRecognizer : MonoBehaviour {
 
@@ -9,7 +11,7 @@ public class GestureRecognizer : MonoBehaviour {
     {
         new Gesture(new Point[]{ new Point(-5, 0, 0), new Point(-4, 0, 0), new Point(-3, 0, 0), new Point(-2, 0, 0),
                 new Point(-1, 0, 0), new Point(0, 0, 0), new Point(1, 0, 0), new Point(2, 0, 0), new Point(3, 0, 0),
-                new Point(4, 0, 0), new Point(5, 0, 0)}, "line_Horizontal")      // point data goes here
+                new Point(4, 0, 0), new Point(5, 0, 0)}, "line_Horizontal")
     };
 
     Point[] newPoints = new Point[] { /* points come from Painter */ };
@@ -24,14 +26,36 @@ public class GestureRecognizer : MonoBehaviour {
 
     public GameObject ball;
 
+    public string currentGestureName = "";
+
+    public Painter painter;
+
+    public float minMatchValue = 1;
+
+    public Slider minMatchValueSlider;
+
+    public void SetGestureToCheckAgainst(Gesture gesture) {
+        gestureSet = new Gesture[] { gesture };
+        currentGestureName = gesture.Name;
+    }
+
+    public void SetMinMatch(float newValue) {
+        minMatchValue = newValue;
+    }
+
+    public void SetFromSlider() {
+        minMatchValue = minMatchValueSlider.value;
+    }
+
     public void CheckCandidateGesture(Point[] points) {      // check if candidate matches something in our gestureSet
         if (points.Length <= 1) {
             print("only one freaking point!");
+            painter.CanPaint();
             return;
         }
         newPoints = points;
         candidate = new Gesture(newPoints);
-        gestureClass = PointCloudRecognizer.Classify(candidate, gestureSet);
+        gestureClass = PointCloudRecognizer.Classify(candidate, gestureSet, minMatchValue);
         print(gestureClass);
         GotGestureClass(gestureClass);
         switch (gestureClass) {
@@ -40,7 +64,8 @@ public class GestureRecognizer : MonoBehaviour {
     }
 
     void GotGestureClass(string gestClass) {
-        if (gestClass == "line_Horizontal") {
+        if (gestClass == "square") {
+            print("square recognized!!!");
             // change to green, wait 2 secs change to gray
             StartCoroutine(BallColorThing(true));
         } else {
@@ -53,5 +78,6 @@ public class GestureRecognizer : MonoBehaviour {
         ball.GetComponent<MeshRenderer>().material = wasRight ? green : red;
         yield return new WaitForSeconds(2);
         ball.GetComponent<MeshRenderer>().material = gray;
+        painter.CanPaint();
     }
 }

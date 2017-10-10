@@ -72,9 +72,16 @@ namespace DaydreamElements.ClickMenu {
 
         public string eiVoiToimii = "";
 
-    //public void UseInitialMaterial() {
-    //  reticle.sharedMaterial = initialReticleMaterial;
-    //}
+        public bool canPaint = false;
+
+    public void CanPaint() {
+            Clear();
+            canPaint = true;
+        }
+
+        //public void UseInitialMaterial() {
+        //  reticle.sharedMaterial = initialReticleMaterial;
+        //}
 
         //public void UseBrushMaterial() {
         //  reticle.sharedMaterial = currentBrushMaterial;
@@ -178,13 +185,15 @@ namespace DaydreamElements.ClickMenu {
       transform.position = cameraParent.position;
       transform.rotation = cameraParent.rotation;
 
-      // Do not allow painting if the menu system is open                                       //////              DO THIS
-      //if (menuRoot.IsMenuOpen()) {
-      //  EndStroke();
-      //  return;
-      //}
+            // Do not allow painting if the menu system is open                                       //////              DO THIS
+            //if (menuRoot.IsMenuOpen()) {
+            //  EndStroke();
+            //  return;
+            //}
 
-      // Start, stop, or continue painting
+            // Start, stop, or continue painting
+
+            if (!canPaint) return;
       if (GvrControllerInput.ClickButtonDown) {
         StartStroke();
       } else if (GvrControllerInput.ClickButtonUp) {
@@ -225,6 +234,7 @@ namespace DaydreamElements.ClickMenu {
         }
 
     private void EndStroke() {
+            canPaint = false;
         curStroke = null;
         isPainting = false;
             Point[] newPoints = pointsList.ToArray();

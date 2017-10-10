@@ -75,10 +75,11 @@ namespace PDollarGestureRecognizer
         /// <param name="candidate"></param>
         /// <param name="trainingSet"></param>
         /// <returns></returns>
-        public static string Classify(Gesture candidate, Gesture[] trainingSet)
+        public static string Classify(Gesture candidate, Gesture[] trainingSet, float minMatch)
         {
-            float minDistance = float.MaxValue;
-            float maxDistance = 0.6f;
+            //float minDistance = float.MaxValue;
+            //float maxDistance = 0.6f;
+            float maxDistance = minMatch;
             string gestureClass = "that did not match";
             foreach (Gesture template in trainingSet)
             {
