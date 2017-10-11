@@ -265,7 +265,7 @@ namespace DaydreamElements.ClickMenu {
             Point[] newPoints = pointsList.ToArray();
             MahdotonRoska(newPoints);
             gestRecog.CheckCandidateGesture(newPoints);
-            print(newPoints.Length);
+            //print(newPoints.Length);
             pointsList.Clear();
             pointsArrayId++;
             firstPoint = true;

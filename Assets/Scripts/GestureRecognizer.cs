@@ -47,6 +47,10 @@ public class GestureRecognizer : MonoBehaviour {
         minMatchValue = minMatchValueSlider.value;
     }
 
+    public void PrintMatchValue(float value) {
+        print("value: " + value);
+    }
+
     public void CheckCandidateGesture(Point[] points) {      // check if candidate matches something in our gestureSet
         if (points.Length <= 1) {
             print("only one freaking point!");
@@ -57,20 +61,28 @@ public class GestureRecognizer : MonoBehaviour {
         candidate = new Gesture(newPoints);
         painter.VisualStuff(candidate);
         gestureClass = PointCloudRecognizer.Classify(candidate, gestureSet, minMatchValue);
+        float matchValue;
         //print(gestureClass);
         GotGestureClass(gestureClass);
+
         switch (gestureClass) {
             case "line_Horizontal": break;
         }
     }
 
     void GotGestureClass(string gestClass) {
-        if (gestClass == "square") {
-            print("square recognized!!!");
+        //gestClass.Contains("square")
+        //gestClass == "square"
+        if (gestClass.Contains("square")) {
+            print("square recognized!!! \n " + gestClass);
             // change to green, wait 2 secs change to gray
+            StartCoroutine(BallColorThing(true));
+        } else if (gestClass.Contains("circle")) {
+            print("circle recognized \n " + gestClass);
             StartCoroutine(BallColorThing(true));
         } else {
             // change to red, wait 2 secs change to gray
+            print(gestClass);
             StartCoroutine(BallColorThing(false));
         }
     }

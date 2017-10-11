@@ -65,6 +65,8 @@ namespace PDollarGestureRecognizer
     /// <summary>
     /// Implements the $P recognizer
     /// </summary>
+    /// 
+
     public class PointCloudRecognizer
     {
         /// <summary>
@@ -75,6 +77,7 @@ namespace PDollarGestureRecognizer
         /// <param name="candidate"></param>
         /// <param name="trainingSet"></param>
         /// <returns></returns>
+        /// 
         public static string Classify(Gesture candidate, Gesture[] trainingSet, float minMatch)
         {
             //float minDistance = float.MaxValue;
@@ -84,10 +87,11 @@ namespace PDollarGestureRecognizer
             foreach (Gesture template in trainingSet)
             {
                 float dist = GreedyCloudMatch(candidate.Points, template.Points);
+                gestureClass = "that did not match\n" + dist;
                 if (dist < maxDistance)
                 {
-                    maxDistance = dist;
-                    gestureClass = template.Name;
+                    //maxDistance = dist;
+                    gestureClass = template.Name + "_" + dist;
                 }
             }
             return gestureClass;
